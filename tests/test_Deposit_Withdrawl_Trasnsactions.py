@@ -63,12 +63,22 @@ async def test_deposit_withdrawl_transactions():
 
             # Check last transactions
             await account_page.click_transactions()
+            await page.wait_for_timeout(2000)  # Wait for 2 seconds to allow transactions to load
             last_transactions = await account_page.get_last_transactions()
+            
+            # Print found transactions
             for transaction in last_transactions:
                 print(f"Transaction: Amount={transaction['amount']}, Type={transaction['transaction_type']}")
-            assert last_transactions[-1]["amount"] == "50", "Expected last transaction amount to be 50"
-            assert last_transactions[-1]["transaction_type"] == "Debit", "Expected last transaction type to be Debit"
-            print("Last transaction validated successfully")
+            
+            # Verify we have transactions to check
+            if not last_transactions:
+                print("No transactions found. The transaction list is empty.")
+                assert False, "No transactions found after deposit and withdrawal operations"
+            else:
+                # Verify the last transaction
+                assert last_transactions[-1]["amount"] == "50", "Expected last transaction amount to be 50"
+                assert last_transactions[-1]["transaction_type"] == "Debit", "Expected last transaction type to be Debit"
+                print("Last transaction validated successfully")
 
         finally:
             # Close the browser context

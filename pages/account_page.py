@@ -40,12 +40,24 @@ class AccountPage:
     
     async def click_transactions(self):
         await self.page.click("button[ng-click='transactions()']")
+        # Wait for navigation to complete and transactions table to be visible
+        await self.page.wait_for_selector("table.table-bordered", state="visible", timeout=10000)
         print("Clicked Transactions button")
 
     async def get_last_transactions(self, count: int = 2) -> list:
+        # Wait for the table to be fully loaded
+        await self.page.wait_for_selector("table.table-bordered", state="visible", timeout=10000)
         rows = await self.page.locator("table.table-bordered tbody tr").all()
         transactions = []
-        for row in rows[-count:]:
+        
+        # Check if there are any rows before trying to access them
+        if not rows:
+            print("No transactions found")
+            return transactions
+            
+        # Only take the last 'count' rows, or all rows if there are fewer than 'count'
+        recent_rows = rows[-min(count, len(rows)):]
+        for row in recent_rows:
             date_time = await row.locator("td").nth(0).inner_text()
             amount = await row.locator("td").nth(1).inner_text()
             transaction_type = await row.locator("td").nth(2).inner_text()
