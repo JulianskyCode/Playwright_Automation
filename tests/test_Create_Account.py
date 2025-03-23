@@ -28,7 +28,7 @@ async def test_create_account():
 
     async with async_playwright() as p:
         print("Launching browser...")
-        browser = await p.chromium.launch(headless=False, slow_mo=1000)
+        browser = await p.chromium.launch(headless=True, slow_mo=100)
         context = await browser.new_context()
         page = await context.new_page()
 
